@@ -8,7 +8,7 @@ from agents.agente_classico import AgenteClassico
 from agents.agente_llm import AgenteLLM
 
 # --- Configuração ---
-NUM_TICKS = 20
+NUM_TICKS = 50
 SALDO_INICIAL = 1000.0
 
 # --- Inicialização ---

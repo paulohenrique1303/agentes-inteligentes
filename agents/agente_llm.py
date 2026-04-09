@@ -42,20 +42,31 @@ class AgenteLLM:
 
     def _montar_prompt(self, percepcao: dict) -> str:
         historico = " → ".join([f"R${p:.2f}" for p in percepcao["historico"]])
-        return f"""Você é um trader profissional operando em uma bolsa de valores simulada.
+        preco = percepcao["preco_atual"]
+        media = percepcao["media_movel"]
+        desvio = ((preco - media) / media) * 100
+        tendencia = "SUBINDO" if len(percepcao["historico"]) >= 2 and percepcao["historico"][-1] > percepcao["historico"][-2] else "CAINDO"
 
-SITUAÇÃO ATUAL:
-- Preço atual da ação: R$ {percepcao['preco_atual']:.2f}
-- Média móvel (últimos 5 ticks): R$ {percepcao['media_movel']:.2f}
-- Histórico de preços: {historico}
-- Evento de mercado: {percepcao['evento']}
-- Seu saldo em caixa: R$ {percepcao['saldo']:.2f}
-- Ações em sua carteira: {percepcao['acoes']} unidades
+        return f"""Você é um trader disciplinado. Analise os dados e tome UMA decisão.
 
-OBJETIVO: Maximizar o valor total da sua carteira (saldo + ações × preço).
+DADOS DO MERCADO:
+- Preço atual: R$ {preco:.2f}
+- Média móvel (MM5): R$ {media:.2f}
+- Desvio em relação à MM5: {desvio:+.1f}%
+- Tendência recente: {tendencia}
+- Histórico: {historico}
+- Evento: {percepcao['evento']}
 
-Com base nessas informações, qual é sua decisão?
-Responda APENAS com uma das palavras: COMPRAR, VENDER ou ESPERAR"""
+SUA CARTEIRA:
+- Saldo em caixa: R$ {percepcao['saldo']:.2f}
+- Ações em carteira: {percepcao['acoes']} unidades
+
+REGRAS:
+- COMPRAR: se preço abaixo da MM5 (desvio negativo) E tiver saldo
+- VENDER: se preço acima da MM5 (desvio positivo) E tiver ações
+- ESPERAR: se não houver sinal claro ou sem recursos
+
+Responda APENAS com uma palavra: COMPRAR, VENDER ou ESPERAR"""
 
     def _extrair_acao(self, texto: str) -> str:
         """Extrai ação válida do texto do LLM."""
