@@ -2,7 +2,7 @@ import ollama
 
 
 ACOES_VALIDAS = {"COMPRAR", "VENDER", "ESPERAR"}
-MODELO = "minimax-m2.7:cloud"
+MODELO = "llama3.2:3b"
 
 
 class AgenteLLM:
